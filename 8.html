@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Format Tools</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            display: inline-block;
+            border: 2px solid #FF6600;
+            padding: 10px 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #FF6600;
+        }
+
+        .tools-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tool-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .tool {
+            background-color: #FF6600;
+            color: white;
+            font-weight: bold;
+            padding: 10px 15px;
+            min-width: 100px;
+            text-align: center;
+            position: relative;
+            clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%);
+            cursor: pointer;
+        }
+
+        .tool:hover {
+            background-color: #e65100;
+        }
+
+        .editor-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .left-panel, .right-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .section-title {
+            border: 2px solid #FF6600;
+            padding: 5px 10px;
+            color: #FF6600;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            width: 200px;
+        }
+
+        .text-area {
+            border: 2px dotted #FF6600;
+            min-height: 150px;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            color: #333;
+            resize: vertical;
+        }
+
+        .text-area-placeholder {
+            color: #aaa;
+        }
+
+        .format-button {
+            background-color: #FF6600;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            margin-top: 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .format-button:hover {
+            background-color: #e65100;
+        }
+
+        .copy-button {
+            background-color: #777;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+        }
+
+        .copy-button:hover {
+            background-color: #555;
+        }
+
+        .section-output {
+            position: relative;
+        }
+
+        /* Popup Styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 2px solid #FF6600;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            text-align: center; /* Center align popup content */
+            width: 300px; /* Fixed width for better alignment */
+        }
+
+        .popup input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center; /* Center align text in input */
+            box-sizing: border-box; /* Include padding in width calculation */
+        }
+
+        .popup button {
+            background-color: #FF6600;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .popup button:hover {
+            background-color: #e65100;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">Blog Format Tools</div>
+    </div>
+
+    <div class="tools-container">
+        <div class="tool-row">
+            <div class="tool" onclick="selectTool('Main Format')">Main Format</div>
+            <div class="tool" onclick="selectTool('Subtitle')">Subtitle</div>
+            <div class="tool" onclick="selectTool('Image')">Image</div>
+            <div class="tool" onclick="selectTool('Introduction')">Introduction</div>
+            <div class="tool" onclick="selectTool('Table of Contents')">Table of Contents</div>
+            <div class="tool" onclick="selectTool('Blog Section')">Blog Section</div>
+        </div>
+
+        <div class="tool-row">
+            <div class="tool" onclick="selectTool('You May Also Like')">You May Also Like</div>
+            <div class="tool" onclick="selectTool('Conclusion')">Conclusion</div>
+            <div class="tool" onclick="selectTool('FAQs')">FAQs</div>
+            <div class="tool" onclick="selectTool('Table')">Table</div>
+            <div class="tool" onclick="selectTool('Quotation')">Quotation</div>
+            <div class="tool" onclick="selectTool('Unordered List')">Unordered List</div>
+        </div>
+    </div>
+
+    <div class="editor-section">
+        <div class="left-panel">
+            <div class="section-title">Section Title</div>
+            <textarea id="inputText" class="text-area" placeholder="Write your text here...."></textarea>
+            <button class="format-button" onclick="formatText()">Format</button>
+
+            <div style="margin-top: 30px;">
+                <div class="section-title">Section Output</div>
+                <div class="section-output">
+                    <textarea id="sectionOutput" class="text-area text-area-placeholder" readonly>Section output will show here....</textarea>
+                    <button class="copy-button" onclick="copySectionOutput()">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="section-title">Total Output</div>
+            <div class="section-output">
+                <textarea id="totalOutput" class="text-area text-area-placeholder" style="height: auto;" readonly>Total output will show here....</textarea>
+                <button class="copy-button" onclick="copyTotalOutput()">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup for Image Section -->
+    <div id="imagePopup" class="popup">
+        <input type="text" id="imageLink" placeholder="Type Image Link">
+        <button onclick="processImageLink()">Next</button>
+    </div>
+
+    <div id="altTextPopup" class="popup">
+        <input type="text" id="altText" placeholder="Type Alt Text">
+        <button onclick="processAltText()">Done</button>
+    </div>
+
+    <!-- Popup for Table of Contents -->
+    <div id="tocPopup" class="popup">
+        <input type="text" id="tocInput" placeholder="Type section name">
+        <button onclick="processTOC('Next')">Next</button>
+        <button onclick="processTOC('Done')">Done</button>
+    </div>
+
+    <!-- Popup for Blog Section -->
+    <div id="blogSectionTitlePopup" class="popup">
+        <input type="text" id="blogSectionTitle" placeholder="Type Your Blog Section Title">
+        <button onclick="processBlogSectionTitle('Next')">Next</button>
+        <button onclick="processBlogSectionTitle('Done')">Done</button>
+    </div>
+
+    <div id="blogSectionDescPopup" class="popup">
+        <input type="text" id="blogSectionDesc" placeholder="Type Your Blog Section Description">
+        <button onclick="processBlogSectionDesc('Next')">Next</button>
+        <button onclick="processBlogSectionDesc('Done')">Done</button>
+    </div>
+
+    <!-- Popup for You May Also Like -->
+    <div id="youMayAlsoLikeTitlePopup" class="popup">
+        <input type="text" id="youMayAlsoLikeTitle" placeholder="Type Your Title">
+        <button onclick="processYouMayAlsoLikeTitle()">Next</button>
+    </div>
+
+    <div id="youMayAlsoLikeLinkPopup" class="popup">
+        <input type="text" id="youMayAlsoLikeLink" placeholder="Type Your Link">
+        <button onclick="processYouMayAlsoLikeLink()">Done</button>
+    </div>
+
+    <script>
+        let selectedTool = "";
+        let totalFormattedOutput = `
+<!--Blog Post Main Style - Start-->
+<style>
+  /* General Blog Styling */
+  .blog-post {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Headings */
+  .blog-post h1 {
+      font-size: 2em;
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ff6600;
+      padding-bottom: 10px;
+  }
+
+  .blog-post h2 {
+      font-size: 1.75em;
+      color: #333;
+      font-weight: 600;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      border-left: 4px solid #ff6600;
+      padding-left: 10px;
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+  }
+
+  .blog-post h2:hover {
+      background: #fff3e0;
+      border-left-color: #e65100;
+  }
+
+  .blog-post h3 {
+      font-size: 1.5em;
+      color: #555;
+      font-weight: 600;
+      margin-top: 25px;
+      margin-bottom: 10px;
+  }
+
+  /* Paragraphs */
+  .blog-post p {
+      margin: 15px 0;
+      color: #555;
+  }
+
+  /* Table of Contents */
+  .table-of-contents {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      margin: 20px 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .table-of-contents h3 {
+      margin: 0 0 15px;
+      font-size: 1.5em;
+      color: #333;
+      font-weight: 600;
+  }
+
+  .table-of-contents ol {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      counter-reset: section-counter;
+  }
+
+  .table-of-contents ol li {
+      margin: 10px 0;
+      padding: 10px;
+      border-left: 4px solid #ff6600;
+      background: #f9f9f9;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+      counter-increment: section-counter;
+  }
+
+  .table-of-contents ol li::before {
+      content: counter(section-counter);
+      font-weight: bold;
+      color: #ff6600;
+      margin-right: 10px;
+  }
+
+  .table-of-contents ol li a {
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+  }
+
+  .table-of-contents ol li:hover {
+      background: #fff3e0;
+      border-left-color: #e65100;
+  }
+
+  .table-of-contents ol li:hover a {
+      color: #e65100;
+  }
+
+  /* Smooth Scrolling */
+  html {
+      scroll-behavior: smooth;
+  }
+</style>
+<!--Blog Post Main Style - End-->
+
+<!--Blog Post - Start-->
+<div class="blog-post">
+`;
+
+        // Initialize text areas with placeholder text
+        window.onload = function() {
+            document.getElementById("sectionOutput").value = "Section output will show here....";
+            document.getElementById("totalOutput").value = "Total output will show here....";
+            
+            // Add event listeners to remove placeholder styling when content changes
+            document.getElementById("sectionOutput").addEventListener("input", function() {
+                if (this.value !== "Section output will show here....") {
+                    this.classList.remove("text-area-placeholder");
+                } else {
+                    this.classList.add("text-area-placeholder");
+                }
+            });
+            
+            document.getElementById("totalOutput").addEventListener("input", function() {
+                if (this.value !== "Total output will show here....") {
+                    this.classList.remove("text-area-placeholder");
+                } else {
+                    this.classList.add("text-area-placeholder");
+                }
+            });
+        };
+
+        // Function to select a tool
+        function selectTool(tool) {
+            selectedTool = tool;
+            document.querySelector(".section-title").textContent = tool;
+
+            // Hide textarea for tools that don't require input
+            if (tool === "Main Format" || tool === "Table of Contents" || tool === "Blog Section" || tool === "You May Also Like" || tool === "Image") {
+                document.getElementById("inputText").style.display = "none";
+            } else {
+                document.getElementById("inputText").style.display = "block";
+            }
+        }
+
+        // Function to format the text
+        function formatText() {
+            const inputText = document.getElementById("inputText").value;
+
+            // For tools other than special cases, require text input
+            if (selectedTool !== "Main Format" && selectedTool !== "Table of Contents" && 
+                selectedTool !== "Blog Section" && selectedTool !== "You May Also Like" && 
+                selectedTool !== "Image" && !inputText.trim()) {
+                alert("Please enter some text!");
+                return;
+            }
+
+            let formattedText = "";
+
+            // Generate formatted text based on the selected tool
+            switch (selectedTool) {
+                case "Main Format":
+                    // No additional action needed for Main Format
+                    break;
+                case "Subtitle":
+                    formattedText = `<!--Blog Title-->\n<h1>${inputText}</h1>\n\n`;
+                    break;
+                case "Introduction":
+                    formattedText = `<!--Introduction - Start-->\n<div>\n  <p>${inputText}</p>\n</div>\n<!--Introduction - End-->\n\n`;
+                    break;
+                case "Image":
+                    showImagePopup();
+                    return;
+                case "Table of Contents":
+                    showTOCPopup();
+                    return;
+                case "Blog Section":
+                    showBlogSectionPopup();
+                    return;
+                case "You May Also Like":
+                    showYouMayAlsoLikePopup();
+                    return;
+                case "Conclusion":
+                    formattedText = `<!--Conclusion - Start-->\n<p>${inputText}</p>\n<!--Conclusion - End-->\n\n`;
+                    break;
+                default:
+                    alert("Invalid tool selected!");
+                    return;
+            }
+
+            // Update Section Output
+            document.getElementById("sectionOutput").value = formattedText;
+            document.getElementById("sectionOutput").classList.remove("text-area-placeholder");
+
+            // Append to Total Output inside the <div class="blog-post"> tag
+            totalFormattedOutput += formattedText;
+            document.getElementById("totalOutput").value = totalFormattedOutput + `</div>\n<!--Blog Post - End-->`;
+            document.getElementById("totalOutput").classList.remove("text-area-placeholder");
+
+            // Clear the input text box (except for Main Format)
+            if (selectedTool !== "Main Format") {
+                document.getElementById("inputText").value = "";
+            }
+        }
+
+        // Function to show Image Popup
+        function showImagePopup() {
+            document.getElementById("imagePopup").style.display = "block";
+        }
+
+        // Function to process Image Link
+        function processImageLink() {
+            const imageLink = document.getElementById("imageLink").value;
+            if (!imageLink.trim()) {
+                alert("Please enter an image link!");
+                return;
+            }
+            document.getElementById("imagePopup").style.display = "none";
+            document.getElementById("altTextPopup").style.display = "block";
+            document.getElementById("altText").value = "";
+        }
+
+        // Function to process Alt Text
+        function processAltText() {
+            const altText = document.getElementById("altText").value;
+            if (!altText.trim()) {
+                alert("Please enter alt text!");
+                return;
+            }
+            const imageLink = document.getElementById("imageLink").value;
+            const formattedText = `<!--Image Upload - Start-->
+<style>
+    /* Image Section */
+    .image-section {
+        position: relative;
+        margin: 20px 0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Softer shadow effect */
+    }
+    .image-section img {
+        width: 100%;
+        display: block;
+        border-radius: 10px;
+        transition: transform 0.3s ease, filter 0.3s ease;
+    }
+    .image-section:hover img {
+        transform: scale(1.05); /* Zoom effect on hover */
+        filter: brightness(0.9); /* Slightly darken image on hover */
+    }
+</style>
+<div class="image-section">
+    <!-- Change the image link here -->
+    <img src="${imageLink}" alt="${altText}">
+</div>
+<!--Image Upload - End-->\n\n`;
+            document.getElementById("sectionOutput").value = formattedText;
+            document.getElementById("sectionOutput").classList.remove("text-area-placeholder");
+            
+            totalFormattedOutput += formattedText;
+            document.getElementById("totalOutput").value = totalFormattedOutput + `</div>\n<!--Blog Post - End-->`;
+            document.getElementById("totalOutput").classList.remove("text-area-placeholder");
+            
+            document.getElementById("altTextPopup").style.display = "none";
+        }
+
+        // Function to show Table of Contents Popup
+        function showTOCPopup() {
+            document.getElementById("tocPopup").style.display = "block";
+            tocContent = "";
+            tocCounter = 1;
+        }
+
+        let tocCounter = 1;
+        let tocContent = "";
+
+        // Function to process Table of Contents
+        function processTOC(action) {
+            const tocInput = document.getElementById("tocInput").value;
+            if (!tocInput.trim() && action === "Next") {
+                alert("Please enter a section name!");
+                return;
+            }
+
+            if (action === "Next") {
+                tocContent += `    <li><a href="#section${tocCounter}">${tocInput}</a></li>\n`;
+                tocCounter++;
+                document.getElementById("tocInput").value = "";
+            } else if (action === "Done") {
+                const formattedText = `<!--Table of Contents - Start-->\n<div class="table-of-contents">\n  <h3>Table of Contents</h3>\n  <ol>\n${tocContent}  </ol>\n</div>\n<!--Table of Contents - End-->\n\n`;
+                document.getElementById("sectionOutput").value = formattedText;
+                document.getElementById("sectionOutput").classList.remove("text-area-placeholder");
+                
+                totalFormattedOutput += formattedText;
+                document.getElementById("totalOutput").value = totalFormattedOutput + `</div>\n<!--Blog Post - End-->`;
+                document.getElementById("totalOutput").classList.remove("text-area-placeholder");
+                
+                document.getElementById("tocPopup").style.display = "none";
+            }
+        }
+
+        // Blog Section variables
+        let blogSectionTitles = [];
+        let blogSectionDescs = [];
+        let currentBlogSectionIndex = 0;
+
+        // Function to show Blog Section Popup
+        function showBlogSectionPopup() {
+            // Reset arrays and counters
+            blogSectionTitles = [];
+            blogSectionDescs = [];
+            currentBlogSectionIndex = 0;
+            
+            // Show the title popup
+            document.getElementById("blogSectionTitlePopup").style.display = "block";
+            document.getElementById("blogSectionTitle").value = "";
+        }
+
+        // Function to process Blog Section Title
+        function processBlogSectionTitle(action) {
+            if (action === "Next") {
+                const title = document.getElementById("blogSectionTitle").value;
+                if (!title.trim()) {
+                    alert("Please enter a blog section title!");
+                    return;
+                }
+                
+                blogSectionTitles.push(title);
+                document.getElementById("blogSectionTitlePopup").style.display = "none";
+                document.getElementById("blogSectionDescPopup").style.display = "block";
+                document.getElementById("blogSectionDesc").value = "";
+            } else if (action === "Done") {
+                // End the process and generate output with whatever sections we have
+                finalizeBlogSections();
+            }
+        }
+
+        // Function to process Blog Section Description
+        function processBlogSectionDesc(action) {
+            const desc = document.getElementById("blogSectionDesc").value;
+            if (!desc.trim()) {
+                alert("Please enter a blog section description!");
+                return;
+            }
+            
+            blogSectionDescs.push(desc);
+            currentBlogSectionIndex++;
+            
+            document.getElementById("blogSectionDescPopup").style.display = "none";
+            
+            if (action === "Done") {
+                // End the process and generate output with current sections
+                finalizeBlogSections();
+            } else if (action === "Next") {
+                // Show title popup for the next section
+                document.getElementById("blogSectionTitlePopup").style.display = "block";
+                document.getElementById("blogSectionTitle").value = "";
+            }
+        }
+
+        // Function to finalize Blog Sections
+        function finalizeBlogSections() {
+            let sectionsHTML = `<!--All Blog Sections - Start-->\n\n`;
+            
+            for (let i = 0; i < blogSectionTitles.length; i++) {
+                sectionsHTML += `  <div id="section${i+1}">\n`;
+                sectionsHTML += `    <h2>${i+1}. ${blogSectionTitles[i]}</h2>\n`;
+                sectionsHTML += `    <p>\n`;
+                sectionsHTML += `       ${blogSectionDescs[i]}\n`;
+                sectionsHTML += `    </p>\n`;
+                sectionsHTML += `  </div>\n\n`;
+            }
+            
+            sectionsHTML += `<!--All Blog Sections - End-->`;
+            
+            document.getElementById("sectionOutput").value = sectionsHTML;
+            document.getElementById("sectionOutput").classList.remove("text-area-placeholder");
+            
+            totalFormattedOutput += sectionsHTML + "\n\n";
+            document.getElementById("totalOutput").value = totalFormattedOutput + `</div>\n<!--Blog Post - End-->`;
+            document.getElementById("totalOutput").classList.remove("text-area-placeholder");
+            
+            // Close any open popups
+            document.getElementById("blogSectionTitlePopup").style.display = "none";
+            document.getElementById("blogSectionDescPopup").style.display = "none";
+        }
+
+        // Function to show You May Also Like Popup
+        function showYouMayAlsoLikePopup() {
+            document.getElementById("youMayAlsoLikeTitlePopup").style.display = "block";
+            document.getElementById("youMayAlsoLikeTitle").value = "";
+        }
+
+        // Function to process You May Also Like Title
+        function processYouMayAlsoLikeTitle() {
+            const title = document.getElementById("youMayAlsoLikeTitle").value;
+            if (!title.trim()) {
+                alert("Please enter a title!");
+                return;
+            }
+            
+            document.getElementById("youMayAlsoLikeTitlePopup").style.display = "none";
+            document.getElementById("youMayAlsoLikeLinkPopup").style.display = "block";
+            document.getElementById("youMayAlsoLikeLink").value = "";
+            
+            // Store title in a data attribute
+            document.getElementById("youMayAlsoLikeLinkPopup").dataset.title = title;
+        }
+
+        // Function to process You May Also Like Link
+        function processYouMayAlsoLikeLink() {
+            const link = document.getElementById("youMayAlsoLikeLink").value;
+            if (!link.trim()) {
+                alert("Please enter a link!");
+                return;
+            }
+            
+            const title = document.getElementById("youMayAlsoLikeLinkPopup").dataset.title;
+            
+            const formattedText = `<!--You May Also Like Section - Start-->
+
+<style>
+  /* You May Also Like Section */
+  .related-posts {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      margin: 20px 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .related-posts h3 {
+      margin: 0 0 15px;
+      font-size: 1.5em;
+      color: #333;
+      font-weight: 600;
+  }
+
+  .related-posts ul {
+      list-style: square; /* Square bullet points */
+      padding-left: 20px; /* Add padding for alignment */
+      margin: 0;
+  }
+
+  .related-posts ul li {
+      margin: 10px 0;
+      padding: 5px 0;
+      color: #ff6600; /* Square bullet color */
+  }
+
+  .related-posts ul li a {
+      color: #ff6600; /* Link color matches square bullet color */
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+  }
+
+  .related-posts ul li a:hover {
+      color: #e65100; /* Darker shade on hover */
+  }
+</style>
+
+<div class="related-posts">
+  <h3>You may also like...</h3>
+  <ul>
+    <li>
+      <a href="${link}">${title}</a>
+    </li>
+  </ul>
+</div>
+
+<!--You May Also Like Section - End-->`;
+            
+            document.getElementById("sectionOutput").value = formattedText;
+            document.getElementById("sectionOutput").classList.remove("text-area-placeholder");
+            
+            totalFormattedOutput += formattedText + "\n\n";
+            document.getElementById("totalOutput").value = totalFormattedOutput + `</div>\n<!--Blog Post - End-->`;
+            document.getElementById("totalOutput").classList.remove("text-area-placeholder");
+            
+            document.getElementById("youMayAlsoLikeLinkPopup").style.display = "none";
+        }
+
+        // Function to copy Section Output
+        function copySectionOutput() {
+            const sectionOutput = document.getElementById("sectionOutput").value;
+            navigator.clipboard.writeText(sectionOutput)
+                .then(() => alert("Copied Section Output!"))
+                .catch(() => alert("Failed to copy!"));
+        }
+
+        // Function to copy Total Output
+        function copyTotalOutput() {
+            const totalOutput = document.getElementById("totalOutput").value;
+            navigator.clipboard.writeText(totalOutput)
+                .then(() => alert("Copied Total Output!"))
+                .catch(() => alert("Failed to copy!"));
+        }
+    </script>
+</body>
+</html>
